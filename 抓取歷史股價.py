@@ -1,11 +1,17 @@
 import yfinance as yf
 import os
+import pandas as pd
 
-ticker_code='^TWII'
-df = yf.Ticker(ticker_code).history(period="max")
+data=pd.read_excel('Product Code.xlsx')
 
-if os.path.exists(ticker_code+'.csv'):
-    os.remove(ticker_code+'.csv')
+for symbol in data['Code']:
+    filename = str(symbol) + '.csv'
+    df = yf.Ticker(str(symbol)).history(period="max")
+    data_folder = 'History Data'
+    df.index = df.index.strftime('%Y-%m-%d')
 
-with open(ticker_code+'.csv', mode='a',newline='') as file:
-    df.to_csv(file, index=True, header=not file.tell())
+    if os.path.exists(os.path.join(data_folder, filename)):
+        os.remove(os.path.join(data_folder, filename))
+
+    with open(os.path.join(data_folder, filename), mode='a',newline='') as file:
+        df.to_csv(file, index=True, header=not file.tell())
