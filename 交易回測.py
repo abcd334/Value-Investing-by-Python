@@ -6,7 +6,46 @@ import mplfinance as mpf
 symbol = '^TWII'
 data = pd.read_csv(os.path.join('History Data', symbol+'.csv'), index_col='Date')
 data.index = pd.to_datetime(data.index)
-print(data)
+
+def XAverage(True_Range_line,days):
+    var1=(2/(days+1))
+    XAverage_line = pd.DataFrame()
+    for True_Range in True_Range_line['True Range']:
+        if True_Range==0:
+            XAverage_line=XAverage_line.append({'XAverage':0}, ignore_index=True)
+        else:
+            XAverage_line=XAverage_line.append({'XAverage': XAverage_line[-1]+var1*(True_Range-XAverage_line[-1])}, ignore_index=True)
+
+    return XAverage_line
+
+def TrueRange(data,days):
+    high = data['Close'].rolling(days).max()
+    low = data['Close'].rolling(days).min()
+    high.fillna("NA", inplace=True)
+    True_Range_line = pd.DataFrame()
+    for H,L,data['Close'] in zip(high,low,data['Close']):
+        if H=='NA':
+            True_Range_line = True_Range_line.append({'True Range':0}, ignore_index=True)
+        else:
+            True_Range_line = True_Range_line.append({'True Range':max((H - L), abs(H - data['Close'][-1]), abs(L - data['Close'][-1]))}, ignore_index=True)
+
+    return True_Range_line
+
+
+
+if __name__ == '__main__':
+    days=10
+    True_Range_line = TrueRange(data,days)
+    XAverage_line=XAverage(True_Range_line,days)
+    with pd.ExcelWriter('output.xlsx', mode='w') as writer:
+        True_Range_line.to_excel(writer, sheet_name='sheet1', index=False, startrow=0, startcol=0, header=True)
+    with pd.ExcelWriter('output.xlsx', mode='a') as writer:
+        XAverage_line.to_excel(writer, sheet_name='sheet2', index=False, startrow=0, startcol=0, header=True)
+
+    #print(True_Range_line,XAverage_line)
+
+
+
 # 繪製K線圖
 #mpf.plot(data, type='candle', mav=(50,100,120), volume=True, show_nontrading=True)
 
