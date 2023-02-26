@@ -9,9 +9,14 @@ import csv
 
 input_begin_date='2000/01/01'
 input_end_date='2023/02/23'
-#
+
 Fund_codes=pd.read_excel('Fund Code.xlsx')
 Fund_codes['Fund Ref'].fillna("NA", inplace=True)
+
+#在背景抓取
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
 
 for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
 
@@ -19,7 +24,7 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
     if Fund_ref == "NA":
 
         url="https://tw.stock.yahoo.com/fund/search?onshore=2&sortBy=return3M&q="+ Fund +"&morningStarRanking=0&currencyId=CU%24%24%24%24%24USD&return3M=0"
-        chrome = webdriver.Chrome('./chromedriver')
+        chrome = webdriver.Chrome(options=options)
         chrome.get(url)
         soup = BeautifulSoup(chrome.page_source, "lxml")
         soup_fund = soup.find("a",{"title":Fund})
@@ -36,7 +41,7 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
     #抓取歷史淨值
     print(Fund,Fund_ref)
     url = 'https://tw.stock.yahoo.com/fund/history/' + Fund_ref
-    chrome = webdriver.Chrome("./goolemapSpider/chromedriver.exe")
+    chrome = webdriver.Chrome()#"./goolemapSpider/chromedriver.exe",
     chrome.get(url)
     time.sleep(0.5)
 
