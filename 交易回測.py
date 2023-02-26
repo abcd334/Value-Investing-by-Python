@@ -3,12 +3,12 @@ from 長短均線 import moving_average_crossover
 import os
 import mplfinance as mpf
 
-symbol = 'QQQ'#'^TWII'
+symbol = '^TWII'
 data = pd.read_csv(os.path.join('History Data', symbol+'.csv'), index_col='Date')
 data.index = pd.to_datetime(data.index)
 print(data)
 # 繪製K線圖
-mpf.plot(data, type='candle', mav=(50,100,120), volume=True, show_nontrading=True)
+#mpf.plot(data, type='candle', mav=(50,100,120), volume=True, show_nontrading=True)
 
 '''
 result=pd.DataFrame()
