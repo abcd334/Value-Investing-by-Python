@@ -8,7 +8,7 @@ for symbol in data['Code']:
     filename = str(symbol) + '.csv'
     df = yf.Ticker(str(symbol)).history(period="max")
     data_folder = 'History Data'
-    df.index = df.index.strftime('%Y-%m-%d')
+    df.index = pd.to_datetime(df.index.strftime('%Y-%m-%d'))
 
     if os.path.exists(os.path.join(data_folder, filename)):
         os.remove(os.path.join(data_folder, filename))
