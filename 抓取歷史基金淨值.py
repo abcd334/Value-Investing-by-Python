@@ -24,17 +24,17 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
     #抓基金代號
     if Fund_ref == "NA":
 
-        url="https://tw.stock.yahoo.com/fund/search?onshore=2&sortBy=return3M&q="+ Fund[:7] +"&morningStarRanking=0&currencyId=CU%24%24%24%24%24USD&return3M=0"
+        url="https://tw.stock.yahoo.com/fund/search?onshore=2&sortBy=return3M&q="+ Fund +"&morningStarRanking=0&currencyId=CU%24%24%24%24%24USD&return3M=0"
         chrome = webdriver.Chrome(options=options)
         chrome.get(url)
         soup = BeautifulSoup(chrome.page_source, "lxml")
 
-        pattern = re.compile('.*{}.*'.format(Fund))
+        pattern = re.compile('.*{}.*'.format(Fund[:6]))
         # 找出所有title包含目標文字的連結
         soup_links = soup.find_all("a", {"title": pattern})
         # 取出第一個符合條件的連結
         soup_fund = soup_links[0] if soup_links else None
-        
+
         #soup_fund = soup.find("a",{"title":Fund})
         if soup_fund is None:
             print(Fund,url)
