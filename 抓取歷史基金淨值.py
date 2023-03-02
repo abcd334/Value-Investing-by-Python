@@ -35,10 +35,22 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
         # 取出第一個符合條件的連結
         soup_fund = soup_links[0] if soup_links else None
 
-        #soup_fund = soup.find("a",{"title":Fund})
         if soup_fund is None:
-            print(Fund,url)
-            continue
+            no=int(len(Fund) * 0.4)
+            url = "https://tw.stock.yahoo.com/fund/search?onshore=2&sortBy=return3M&q=" + Fund[:no] + "&morningStarRanking=0&currencyId=CU%24%24%24%24%24USD&return3M=0"
+            chrome = webdriver.Chrome(options=options)
+            chrome.get(url)
+            soup = BeautifulSoup(chrome.page_source, "lxml")
+
+            pattern = re.compile('.*{}.*'.format(Fund[:6]))
+            # 找出所有title包含目標文字的連結
+            soup_links = soup.find_all("a", {"title": pattern})
+            # 取出第一個符合條件的連結
+            soup_fund = soup_links[0] if soup_links else None
+
+            if soup_fund is None:
+                print(Fund,url)
+                continue
         else:
             fund_ref = soup_fund['href']
             fund_code = fund_ref.split('/')[-1]
@@ -47,7 +59,7 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
             Fund_codes.to_excel('Fund Code.xlsx', index=False)
 
     #抓取歷史淨值
-    print(Fund,Fund_ref)
+    print(Fund,str(Fund_ref))
     url = 'https://tw.stock.yahoo.com/fund/history/' + Fund_ref
     chrome = webdriver.Chrome()#"./goolemapSpider/chromedriver.exe",
     chrome.get(url)
@@ -85,6 +97,11 @@ for Fund, Fund_ref in zip(Fund_codes['Fund Code'],Fund_codes['Fund Ref']):
                 rows = []
                 for row in reader:
                     rows.append(row)
+
+            header[0] = 'Date'
+            header[1] = 'Close'
+            header[2] = 'Diff'
+            header[3] = 'Persent'
 
             with open(os.path.join(new_file_path, new_file_name), 'w', newline='') as f:
                 writer = csv.writer(f)
